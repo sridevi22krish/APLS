@@ -8,7 +8,29 @@
 	<name>PLM Maven Webapp</name>
 	<url>http://maven.apache.org</url>
   <build>
-    <finalName>PLM</finalName>
+ <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+	
+<build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>3.0</version>
+              <configuration>
+                  <webXml>srcmainwebappWEB-INFweb.xml</webXml>
+              </configuration>
+          </plugin>
+      </plugins>
+ 
+ <finalName>PLM</finalName>
     <pluginManagement>
     <plugins>
     <plugin>
@@ -19,8 +41,8 @@
     </plugins>
     </pluginManagement>
   </build>
-  
-  <dependencies>
+
+ <dependencies>
   <dependency>
 <groupId>junit</groupId>
 <artifactId>junit</artifactId>
