@@ -7,6 +7,20 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>PLM Maven Webapp</name>
 	<url>http://maven.apache.org</url>
+  
+  <build>
+ <finalName>PLM</finalName>
+    <pluginManagement>
+    <plugins>
+    <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+	<artifactId>cobertura-maven-plugin</artifactId>
+	<version>2.7</version>
+	</plugin>
+    </plugins>
+    </pluginManagement>
+  </build>
+
   <build>
  <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -29,19 +43,7 @@
               </configuration>
           </plugin>
       </plugins>
- 
- <finalName>PLM</finalName>
-    <pluginManagement>
-    <plugins>
-    <plugin>
-    <groupId>org.codehaus.mojo</groupId>
-	<artifactId>cobertura-maven-plugin</artifactId>
-	<version>2.7</version>
-	</plugin>
-    </plugins>
-    </pluginManagement>
   </build>
-
  <dependencies>
   <dependency>
 <groupId>junit</groupId>
