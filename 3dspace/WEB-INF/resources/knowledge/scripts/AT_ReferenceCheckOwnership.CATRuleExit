@@ -1,0 +1,5 @@
+<Scripts>
+	<Script OpeningID="PLMPreCheckTransferOwnership" Type="AT_ENG_PRODUCT" ScriptName="AT_PLMCheckTransferOwnership"></Script>
+	<Script OpeningID="PLMPreCheckTransferOwnership" Type="AT_ENG_3DSHAPE" ScriptName="AT_PLMCheckTransferOwnership"></Script>
+	<Script OpeningID="PLMPreCheckTransferOwnership" Type="AT_ENG_DRAWING" ScriptName="AT_PLMCheckTransferOwnership"></Script>
+</Scripts>

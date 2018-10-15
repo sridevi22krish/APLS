@@ -1,0 +1,136 @@
+// ==============================================================================
+// Syntax: 
+//   MASK DEFAULT
+//   ENTITY <entity>
+//   ATTR   <attr>;<required>;<are_values_authorized_values>;<def_val>
+//   VALUE  <value>
+//   FUNC   <method>
+//   FATTR  <attr>;<modif>
+// with: <entity>   = entity name
+//       <attr>     = atribute name
+//       <required> = required attr logical flag (Y or N)
+//       <are_values_authorized_values>
+//                  = authorized values logical flag (Y or N):
+//                    N -> help values / Y -> authorized values
+//       <def_val>  = default value
+//       <value>    = a string value (can have blanks)
+//                    When <are_values_authorized_values> equals:
+//                    N -> an help value / Y -> an authorized value
+//       <method>   = one of the following operations:
+//                    Create         : attr appears in creation panels
+//                    Read/List/Tree : attr appears in browse/query result panels
+//                    Write          : attr appears in properties panels
+//                    Query/EZQuery  : attr appears in query condition panels
+//       <modif>    = writable field logical flag (Y or N):
+//                    N -> NOT modifiable / Y -> modifiable
+// ==============================================================================
+MASK DEFAULT
+// --------------------------------------------------
+ENTITY AT_ENG_ELECTRICAL_EPS 
+// --------------------------------------------------
+ATTR PLM_ExternalID;Y;N;$
+ATTR revision;N;N;$
+ATTR V_Name;Y;N;$
+ATTR AT_Segregation_Class;Y;N;$
+ATTR AT_Composed_Cable;N;Y;No
+VALUE Yes
+VALUE No
+ATTR AT_Env_Zone;N;N;$
+ATTR AT_Solution_NEO;Y;N;$
+ATTR AT_Version_NEO;Y;N;$
+ATTR AT_EDB;Y;N;$
+ATTR owner;Y;N;$
+ATTR originated;Y;N;$
+ATTR modified;Y;N;$
+ATTR current;N;N;$
+ATTR organization;Y;N;$
+ATTR project;Y;N;$
+ATTR V_description;N;N;$
+FUNC Create
+FATTR PLM_ExternalID;N
+FATTR V_Name;Y
+FATTR AT_Segregation_Class;Y
+FATTR AT_Composed_Cable;Y
+FATTR AT_Env_Zone;Y
+FATTR AT_Solution_NEO;Y
+FATTR AT_Version_NEO;Y
+FATTR AT_EDB;Y
+FATTR V_description;Y
+FUNC Query
+FATTR PLM_ExternalID;Y
+FATTR V_Name;Y
+FATTR AT_Segregation_Class;Y
+FATTR AT_Composed_Cable;Y
+FATTR AT_Env_Zone;Y
+FATTR AT_Solution_NEO;Y
+FATTR AT_Version_NEO;Y
+FATTR AT_EDB;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC EZQuery
+FATTR PLM_ExternalID;Y
+FATTR V_Name;Y
+FATTR AT_Segregation_Class;Y
+FATTR AT_Composed_Cable;Y
+FATTR AT_Env_Zone;Y
+FATTR AT_Solution_NEO;Y
+FATTR AT_Version_NEO;Y
+FATTR AT_EDB;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC Write
+FATTR PLM_ExternalID;N
+FATTR V_Name;Y
+FATTR AT_Segregation_Class;Y
+FATTR AT_Composed_Cable;Y
+FATTR AT_Env_Zone;Y
+FATTR AT_Solution_NEO;Y
+FATTR AT_Version_NEO;Y
+FATTR AT_EDB;Y
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR organization;N
+FATTR project;N
+FATTR V_description;Y
+FUNC Read
+FATTR PLM_ExternalID;N
+FATTR V_Name;N
+FATTR AT_Segregation_Class;N
+FATTR AT_Composed_Cable;N
+FATTR AT_Env_Zone;N
+FATTR AT_Solution_NEO;N
+FATTR AT_Version_NEO;N
+FATTR AT_EDB;N
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC Tree
+FATTR PLM_ExternalID;N
+FATTR V_Name;N
+FATTR AT_Segregation_Class;N
+FATTR AT_Composed_Cable;N
+FATTR AT_Env_Zone;N
+FATTR AT_Solution_NEO;N
+FATTR AT_Version_NEO;N
+FATTR AT_EDB;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC List
+FATTR AT_Segregation_Class;Y
+FATTR AT_Composed_Cable;Y
+FATTR AT_Env_Zone;Y
+FATTR AT_Solution_NEO;Y
+FATTR AT_Version_NEO;Y
+FATTR AT_EDB;Y

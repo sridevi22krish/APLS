@@ -1,0 +1,109 @@
+// ==============================================================================
+// Syntax: 
+//   MASK DEFAULT
+//   ENTITY <entity>
+//   ATTR   <attr>;<required>;<are_values_authorized_values>;<def_val>
+//   VALUE  <value>
+//   FUNC   <method>
+//   FATTR  <attr>;<modif>
+// with: <entity>   = entity name
+//       <attr>     = atribute name
+//       <required> = required attr logical flag (Y or N)
+//       <are_values_authorized_values>
+//                  = authorized values logical flag (Y or N):
+//                    N -> help values / Y -> authorized values
+//       <def_val>  = default value
+//       <value>    = a string value (can have blanks)
+//                    When <are_values_authorized_values> equals:
+//                    N -> an help value / Y -> an authorized value
+//       <method>   = one of the following operations:
+//                    Create         : attr appears in creation panels
+//                    Read/List/Tree : attr appears in browse/query result panels
+//                    Write          : attr appears in properties panels
+//                    Query/EZQuery  : attr appears in query condition panels
+//       <modif>    = writable field logical flag (Y or N):
+//                    N -> NOT modifiable / Y -> modifiable
+// ==============================================================================
+MASK DEFAULT
+// --------------------------------------------------
+ENTITY AT_ENG_INTERFERENCE_ANALYSIS
+// --------------------------------------------------
+ATTR PLM_ExternalID;Y;N;$
+ATTR V_Name;Y;N;$
+ATTR V_description;N;N;$
+ATTR V_experimentStatus;N;Y;ExperimentStatusEnum_Undefined;$
+ATTR V_fromExternalID;N;N;$
+ATTR V_versionComment;N;N;$
+ATTR current;N;N;$
+ATTR majorrevision;N;N;$
+ATTR minorrevision;N;N;$
+ATTR modified;N;N;$
+ATTR organization;N;N;$
+ATTR originated;N;N;$
+ATTR owner;Y;N;$
+ATTR policy;N;N;$
+ATTR project;N;N;$
+ATTR reservedby;N;N;$
+ATTR revision;N;N;$
+ATTR AT_DescriptionEN;N;N;;$
+ATTR AT_DescriptionFR;N;N;;$
+ATTR AT_DescriptionGE;N;N;;$
+ATTR AT_DescriptionIT;N;N;;$
+ATTR AT_DescriptionSP;N;N;;$
+ATTR AT_LastModifyBy;N;N;;$
+FUNC Create
+FATTR PLM_ExternalID;N
+FATTR AT_DescriptionEN;Y
+FATTR V_description;Y
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR organization;N
+FATTR project;N
+FATTR AT_LastModifyBy;N
+FUNC EZQuery
+FATTR PLM_ExternalID;Y
+FATTR AT_DescriptionEN;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR organization;Y
+FATTR project;Y
+FATTR AT_LastModifyBy;Y
+FUNC Query
+FATTR PLM_ExternalID;Y
+FATTR AT_DescriptionEN;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR organization;Y
+FATTR project;Y
+FATTR AT_LastModifyBy;Y
+FUNC Read
+FATTR PLM_ExternalID;Y
+FATTR AT_DescriptionEN;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR organization;Y
+FATTR project;Y
+FATTR AT_LastModifyBy;Y
+FUNC Tree
+FATTR PLM_ExternalID;N
+FATTR AT_DescriptionEN;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FATTR AT_LastModifyBy;N
+FUNC Write
+FATTR PLM_ExternalID;N
+FATTR AT_DescriptionEN;Y
+FATTR V_description;Y
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR organization;N
+FATTR project;N
+FATTR AT_LastModifyBy;N

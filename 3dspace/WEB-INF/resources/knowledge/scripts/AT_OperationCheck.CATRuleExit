@@ -1,0 +1,7 @@
+<Scripts>
+  <Script OpeningID="PLMPostCheckUpdate" Type="AT_Operation"         ScriptName="AT_CheckOperationLinksConsistency" />
+  <Script OpeningID="PLMPostCheckCreate" Type="AT_Operation"         ScriptName="AT_CheckOperationLinksConsistency" />
+  
+  <Script OpeningID="PLMPostCheckCreate" Type="DELLmiGeneralSystemInstance"         ScriptName="AT_CheckOperationLinksConsistency" />
+  <Script OpeningID="PLMPostCheckUpdate" Type="DELLmiGeneralSystemInstance"         ScriptName="AT_CheckOperationLinksConsistency" />
+</Scripts>

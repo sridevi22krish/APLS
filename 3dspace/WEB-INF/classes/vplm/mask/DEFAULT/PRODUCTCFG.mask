@@ -1,0 +1,771 @@
+// ===========================================================
+// PACKAGE   : PRODUCTCFG 
+// ===========================================================
+// Generated : 
+// Updated: Fri Dec 21 02:54:00 2012   Migrating Typing V2 to RACE alike setup step1 (source ENOSTProductDS subsetted on infra capabilities)
+// Updated: Fri Feb 01 02:54:00 2012   Migrating Typing V2 to RACE alike setup (integrating infra evolutions + patching the query on V_usage for 3DPart)
+// -----------------------------------------------------------
+//For RACE this is the sub-class of attribute, they have to be always presented to user in that order
+//a) ident
+//b) description 
+//c) state of dev
+//d) ownership
+//
+//******** V_discipline is currently unpublished, When published it must expose VALUE ******* Will transform in real dictionary type with Unicorn
+//******** V_usage must not be published (soon internal - 3DPart R206 exception)
+//******** V_nature is published if really used, and in RO only
+//******** ATTR V_ApplicabilityDate;N;N;$ is unused in SMB deployment
+//******** ATTR reserved;N;N;$ is "useless" as long as SMB uses optimistic locking and do not lock explicitely info... & reservedby not NULL is equivalent
+//******** FATTR reservedby;N should not be provided in Write Mask (as long as it is not updated in session)/
+//                          Compass reflect latest info and MUST be prefered
+//
+//NOTICE: V6R2013 (R213): RACE Product do specfically support Minor revision
+//                        minorrevise attribute deployed in QUERY, READ, WRITE (but not TREE, EZQUERY)
+//                        majorrevision + minorrevise should be migrated to revision in a next release (prefered RACE ergo spec, but not yet supported VPM Infra)
+//
+// Change for RACE V2 (compared to RACE V1)
+//    PLMExternalID move just below Name (rather than below)
+//    V_Name becomes optional attribute (rather than mandatory in RACE)
+//    PLMExternalID added in EasyQuery (aligned with the PQ V2 strategy)
+//    EasyQuery & Tree adjusted to presend PLMExternalId after V_Name (not tiptop for RACE, may change in the future) 
+//    
+// -----------------------------------------------------------
+// Syntax: 
+//   MASK DEFAULT
+//   ENTITY <entity>
+//   ATTR   <attr>;<required>;<are_values_authorized_values>;<def_val>
+//   VALUE  <value>
+//   FUNC   <method>
+//   FATTR  <attr>;<modif>
+// with: <entity>   = entity name
+//       <attr>     = atribute name
+//       <required> = required attr logical flag (Y or N)
+//       <are_values_authorized_values>
+//                  = authorized values logical flag (Y or N):
+//                    N -> help values / Y -> authorized values
+//       <def_val>  = default value
+//       <value>    = a string value (can have blanks)
+//                    When <are_values_authorized_values> equals:
+//                    N -> an help value / Y -> an authorized value
+//       <method>   = one of the following operations:
+//                    Create         : attr appears in creation panels
+//                    Read/List/Tree : attr appears in browse/query result panels
+//                    Write          : attr appears in properties panels
+//                    Query/EZQuery  : attr appears in query condition panels
+//       <modif>    = writable field logical flag (Y or N):
+//                    N -> NOT modifiable / Y -> modifiable
+// ===========================================================
+MASK DEFAULT
+// --- entities: 6
+// ===========================================================
+ENTITY VPMReference
+// ===========================================================
+// --- attributes: 
+// --- Attributes: removed from functional type after RACE converversion for typing V2
+//Removed: ATTR majorrevision;N;N;$
+//Removed: ATTR minorrevision;N;N;$
+//Removed: ATTR V_discipline;N;N;$
+//Feb 2013 - connot be removed and have to manage in Query the 3DPart case: ATTR V_usage;N;N;$
+//Removed: ATTR V_ApplicabilityDate;N;N;$
+//Removed: ATTR V_nature;N;Y;Definition
+//VALUE Definition
+//VALUE Specification
+//VALUE Presentation
+//Removed: ATTR reserved;N;N;$
+
+//a) ident
+//V1 RACE ATTR V_Name;Y;N;$
+ATTR V_Name;N;N;$
+
+ATTR PLM_ExternalID;Y;N;$
+
+//to superseed two below attributes
+ATTR revision;N;N;$   
+ATTR majorrevision;N;N;$
+ATTR minorrevision;N;N;$
+
+//b) description
+//Suppressed for Typing V2 deployment 
+//list published on 07/04/09, based on JCS consolidation of 3Live visible disciplines
+//list modified on 12/05/09 consolidation with 3DLive (LVT) 
+//ATTR V_discipline;N;N;$
+//VALUE PPRContext
+
+//Need to be kept for ProductReference to support PQ and Query of 3Dpart - for Typing V2 deployement
+ATTR V_usage;N;N;$
+VALUE 3DPart
+
+//Was RACE generic Custo Attribute
+ATTR V_versionComment;N;N;$
+
+ATTR V_description;N;N;$
+ATTR originated;N;N;$
+//Was RACE generic Custo Attribute
+ATTR V_fromExternalID;N;N;$
+ATTR V_Scale;N;Y;$
+VALUE NormalScale
+VALUE LargeScale
+VALUE SmallScale
+
+//c) state of deployment
+ATTR policy;N;N;$
+ATTR modified;N;N;$
+ATTR current;N;N;$
+ATTR reservedby;N;N;$
+
+//d) deployment security setup
+ATTR owner;Y;N;$
+ATTR organization;N;N;$ 
+ATTR project;N;N;$
+
+//
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+//
+// - ordered
+FATTR V_Name;Y
+FATTR PLM_ExternalID;N
+FATTR V_description;Y
+FATTR V_Scale;Y
+FATTR policy;N
+// - unordered
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+// - ordered
+FATTR V_Name;N
+//RACE with NewTyping GA: 2013-09-05= widthdraw this attribute (RACE BL for NT being GA)
+//FATTR PLM_ExternalID;N
+FATTR revision;N
+// - unordered
+//
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;Y
+FATTR revision;Y
+//b) description
+//FATTR V_discipline;Y
+//FATTR V_usage;Y
+//c) state of dev
+FATTR modified;Y
+//FATTR reservedby;Y
+//d) owner
+//FATTR owner;Y
+//FATTR organization;Y
+FATTR project;Y
+// - unordered
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;Y
+FATTR revision;Y 
+
+//b) description
+//FATTR V_discipline;Y
+FATTR V_usage;Y
+FATTR V_versionComment;Y
+FATTR V_description;Y
+FATTR originated;Y
+FATTR V_fromExternalID;Y
+FATTR V_Scale;Y
+
+//c) state of dev
+FATTR policy;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR reservedby;Y
+
+//d) owner
+FATTR owner;Y
+FATTR organization;Y
+FATTR project;Y
+
+// - unordered
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+// - ordered
+//a) ident (used for Properties Read & List) Inacceptable as first in List Mode... so removed.
+FATTR V_Name;N
+FATTR PLM_ExternalID;N
+FATTR revision;N  
+
+//b) description
+//FATTR V_discipline;N
+FATTR V_versionComment;N
+FATTR V_description;N
+FATTR originated;N
+FATTR V_fromExternalID;N
+FATTR V_Scale;N
+
+//c) state of dev
+FATTR policy;N
+FATTR modified;N
+FATTR current;N
+FATTR reservedby;N
+//d) owner
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// - unordered
+
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;N
+FATTR revision;N  
+
+//b) description
+//FATTR V_discipline;N
+FATTR V_versionComment;Y
+FATTR V_description;Y
+FATTR originated;N
+FATTR V_fromExternalID;N
+FATTR V_Scale;N
+
+//c) state of dev
+FATTR policy;N
+FATTR modified;N
+FATTR current;N
+//FATTR reservedby;N
+
+//d) owner
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// ===========================================================
+ENTITY VPMRepReference
+// ===========================================================
+//
+//WAS IN CSE but not IN RACE 
+//ATTR V_nature;N;Y;Definition
+//VALUE Definition
+//VALUE Specification
+//VALUE Presentation
+//ATTR reserved;N;N;$
+//ATTR V_ApplicabilityDate;N;N;$
+
+// --- attributes: 
+//a) ident
+//V1 RACE ATTR V_Name;Y;N;$
+ATTR V_Name;N;N;$
+
+ATTR PLM_ExternalID;Y;N;$
+
+//to superseed two below attributes
+ATTR revision;N;N;$   
+ATTR majorrevision;N;N;$
+ATTR minorrevision;N;N;$
+
+//b) description
+//ATTR V_usage;N;N;$ forbidden, but for rep which are not 3DPart
+//by-pass drafting
+//ATTR V_nature;N;N;$
+//ATTR V_discipline;N;N;$
+//VALUE Design
+//VALUE Drafting
+ATTR V_description;N;N;$
+//Was RACE generic Custo Attribute
+ATTR V_versionComment;N;N;$
+ATTR originated;N;N;$
+//Was RACE generic Custo Attribute
+ATTR V_fromExternalID;N;N;$
+//for filtering rep which are not 3DPart rep element
+//ATTR V_usage;N;N;$
+ATTR V_Scale;N;Y;$
+VALUE NormalScale
+VALUE LargeScale
+VALUE SmallScale
+
+//c) state of dev
+ATTR policy;N;N;$
+ATTR current;N;N;$
+ATTR reservedby;N;N;$
+ATTR modified;N;N;$
+
+//d) owner
+ATTR owner;Y;N;$
+ATTR organization;N;N;$
+ATTR project;N;N;$
+
+//
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+// - ordered
+FATTR V_Name;Y
+FATTR PLM_ExternalID;N
+FATTR V_description;Y
+FATTR V_Scale;Y
+FATTR policy;N
+// - unordered
+//
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+// - ordered
+FATTR V_Name;N
+//RACE with NewTyping GA: 2013-09-05= widthdraw this attribute 
+//FATTR PLM_ExternalID;N
+FATTR revision;N
+// - unordered
+//
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;Y
+FATTR revision;Y
+
+//b) description
+//FATTR V_discipline;Y
+
+//c) state of dev
+FATTR modified;Y
+//FATTR current;Y
+//FATTR reservedby;Y
+
+//d) owner
+//FATTR owner;Y
+//FATTR organization;Y
+FATTR project;Y
+
+// - unordered
+//
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;Y
+
+FATTR revision;Y 
+
+//b) description
+//FATTR V_discipline;Y
+FATTR V_description;Y
+//Was RACE generic Custo Attribute
+FATTR V_versionComment;Y
+FATTR originated;Y
+//Was RACE generic Custo Attribute
+FATTR V_fromExternalID;Y
+//FATTR V_usage;Y
+FATTR V_Scale;Y
+
+//c) state of dev
+FATTR policy;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR reservedby;Y
+
+//d) owner
+FATTR owner;Y
+FATTR organization;Y
+FATTR project;Y
+
+// - unordered
+//
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+// - ordered
+//a) ident: (used for Properties Read & List) Innaceptable as first in List Mode... so removed.
+FATTR V_Name;N
+FATTR PLM_ExternalID;N
+
+FATTR revision;N
+
+//b) description
+//FATTR V_discipline;N
+FATTR V_description;N
+//Was RACE generic Custo Attribute
+FATTR V_versionComment;N
+FATTR originated;N
+//Was RACE generic Custo Attribute
+FATTR V_fromExternalID;N
+FATTR V_Scale;N
+
+//c) state of dev
+FATTR policy;N
+FATTR modified;N
+FATTR current;N
+FATTR reservedby;N
+
+//d) owner
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+// - unordered
+//
+//
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+// - ordered
+//a) ident
+FATTR V_Name;Y
+FATTR PLM_ExternalID;N
+
+FATTR revision;N  
+
+//b) description
+//FATTR V_discipline;N
+//FATTR V_nature;N
+FATTR V_description;Y
+//Was RACE generic Custo Attribute
+FATTR V_versionComment;Y
+FATTR originated;N
+//Was RACE generic Custo Attribute
+FATTR V_fromExternalID;N
+FATTR V_Scale;N
+
+//c) state of dev
+FATTR policy;N
+FATTR modified;N
+FATTR current;N
+//FATTR reservedby;N
+
+//d) owner
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+//
+// - unordered
+//
+// ===========================================================
+ENTITY VPMPort
+// ===========================================================
+// --- attributes: 12
+ATTR V_FunctionalName;Y;N;$
+ATTR PLM_ExternalID;N;N;$
+ATTR originated;N;N;$
+ATTR modified;N;N;$
+ATTR owner;Y;N;$
+ATTR organization;Y;N;$
+ATTR project;N;N;$
+ATTR V_description;N;N;$
+ATTR V_discipline;N;N;$
+ATTR V_usage;N;N;$
+ATTR V_nature;N;Y;Definition
+VALUE Definition
+VALUE Specification
+VALUE Presentation
+ATTR reserved;N;N;$
+ATTR reservedby;N;N;$
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+// as of New PLM New activation (July 2012), and waiting for correct management of
+// functional name editable in Creation panel only, a hack is used: no attribute in creation mask
+FATTR V_FunctionalName;Y
+// FATTR V_description;Y
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+FATTR V_FunctionalName;N
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+FATTR V_FunctionalName;Y
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+FATTR V_FunctionalName;N
+FATTR V_description;N
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR originated;N
+
+FATTR modified;N
+//FATTR reservedby;N   //removed to fix IR-255206V6R2014x
+
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+FATTR V_FunctionalName;Y
+FATTR V_description;Y
+//FATTR V_discipline;Y
+//FATTR V_usage;Y
+//FATTR V_nature;Y
+FATTR originated;Y
+
+FATTR modified;Y
+//FATTR reserved;Y
+//FATTR reservedby;Y  //removed to fix IR-255206V6R2014x
+
+FATTR owner;Y
+FATTR organization;Y
+FATTR project;Y
+
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+FATTR V_FunctionalName;N
+FATTR V_description;Y
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR originated;N
+
+FATTR modified;N
+//FATTR reservedby;N   //removed to fix IR-255206V6R2014x
+
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// ===========================================================
+ENTITY VPMConnection
+// ===========================================================
+// --- attributes: 12
+ATTR PLM_ExternalID;N;N;$
+ATTR V_discipline;N;N;$
+ATTR originated;N;N;$
+ATTR modified;N;N;$
+ATTR owner;Y;N;$
+ATTR organization;Y;N;$
+ATTR project;N;N;$
+ATTR V_description;N;N;$
+ATTR V_usage;N;N;$
+ATTR V_nature;N;Y;Definition
+VALUE Definition
+VALUE Specification
+VALUE Presentation
+ATTR reserved;N;N;$
+ATTR reservedby;N;N;$
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+//FATTR owner;Y
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;N
+FATTR V_description;N
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR originated;N
+
+FATTR modified;N
+FATTR reservedby;N
+
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+FATTR V_description;Y
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR originated;Y
+
+FATTR modified;Y
+FATTR reservedby;Y
+
+FATTR owner;Y
+FATTR organization;Y
+FATTR project;Y
+
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+FATTR V_description;Y
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR originated;N
+
+FATTR modified;N
+FATTR reservedby;N
+
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// ===========================================================
+ENTITY VPMInstance
+// ===========================================================
+ATTR PLM_ExternalID;N;N;$
+ATTR V_description;N;N;$
+ATTR originated;N;N;$
+ATTR reservedby;N;N;$
+ATTR modified;N;N;$
+ATTR owner;Y;N;$
+ATTR organization;N;N;$ 
+ATTR project;N;N;$
+
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;N
+FATTR V_description;Y
+// - unordered
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;N
+// - unordered
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;Y
+//FATTR modified;Y
+// - unordered
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;N
+FATTR V_description;N
+FATTR originated;N
+FATTR modified;N
+FATTR reservedby;N
+// - unordered
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;Y
+//FATTR originated;Y
+FATTR modified;Y
+FATTR reservedby;Y
+FATTR owner;Y
+FATTR organization;Y
+FATTR project;Y
+// - unordered
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+// - ordered
+FATTR PLM_ExternalID;N
+FATTR V_description;Y
+FATTR originated;N
+FATTR modified;N
+//FATTR reservedby;N
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+// -----------------------------------------------------------
+
+// ===========================================================
+ENTITY VPMRepInstance
+// ===========================================================
+// --- attributes: 12
+ATTR PLM_ExternalID;N;N;$
+ATTR originated;N;N;$
+ATTR modified;N;N;$
+ATTR reserved;N;N;$
+ATTR reservedby;N;N;$
+ATTR owner;Y;N;$
+ATTR organization;Y;N;$
+ATTR project;N;N;$
+ATTR V_description;N;N;$
+ATTR V_Qualification;N;N;$
+ATTR V_discipline;N;N;$
+ATTR V_usage;N;N;$
+ATTR V_nature;N;Y;Definition
+VALUE Definition
+VALUE Specification
+VALUE Presentation
+// -----------------------------------------------------------
+FUNC Create
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+FATTR V_description;Y
+// -----------------------------------------------------------
+FUNC Tree
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;N
+// -----------------------------------------------------------
+FUNC EZQuery
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+//FATTR owner;Y
+// -----------------------------------------------------------
+FUNC Read
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;N
+FATTR V_description;N
+FATTR originated;N
+FATTR modified;N
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+//FATTR reserved;N
+
+FATTR reservedby;N
+
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// -----------------------------------------------------------
+FUNC Query
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+//FATTR V_discipline;Y
+//FATTR V_usage;Y
+//FATTR V_nature;Y
+//FATTR reserved;Y
+FATTR reservedby;Y
+FATTR organization;Y
+FATTR project;Y
+FATTR V_description;Y
+// -----------------------------------------------------------
+FUNC Write
+// -----------------------------------------------------------
+FATTR PLM_ExternalID;Y
+FATTR V_description;Y
+FATTR V_Qualification;Y
+FATTR originated;N
+FATTR modified;N
+//FATTR V_discipline;N
+//FATTR V_usage;N
+//FATTR V_nature;N
+FATTR reservedby;N
+FATTR owner;N
+FATTR organization;N
+FATTR project;N
+
+// ===========================================================
+// End of DEFAULT mask file
+// ===========================================================

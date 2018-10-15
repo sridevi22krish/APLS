@@ -1,0 +1,19 @@
+/* ----------------------------------------------------------------------------------------------------------- */
+/* Propagate change controlled while AT MBOM Routing Object Creation
+/* ----------------------------------------------------------------------------------------------------------- */
+
+if ( ThisObject.HasAttribute("V_AuthorityControl") == true )
+{
+	if ( ThisObject->GetAttributeBoolean("V_AuthorityControl") == false )
+	{
+		ThisObject->SetAttributeBoolean("V_AuthorityControl", true)
+	}
+}
+
+if ( ThisObject.HasAttribute("V_ChangeHistory") == true )
+{
+	if ( ThisObject->GetAttributeBoolean("V_ChangeHistory") == false )
+	{
+		ThisObject->SetAttributeBoolean("V_ChangeHistory", true)
+	}
+}

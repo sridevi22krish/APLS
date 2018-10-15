@@ -1,0 +1,123 @@
+Let DeformType(STRING)
+Let DeformValue(STRING)
+Let ListChild (List)
+Let ListRepChild (List)
+Let I_IdxChild(Integer)
+Let I_NbChild(Integer)
+Let I_NbRepChild(Integer)
+Let P_RepInstChild(VPMRepInstance)
+Let P_RepChildEntity(PLMEntity)
+Let maturity(STRING)
+Let currentState (STRING)
+Let transition (STRING)
+
+trace(1,"Debut BL PLMCheckMaturity AT_ENG_PRODUCT")
+
+Validation = true
+I_IdxChild = 1
+
+if (ThisObject.IsSupporting("AT_ENG_DESIGN_PRODUCT") == true OR ThisObject.IsSupporting("AT_ENG_COS") == true)
+{
+	trace(1,"Promote Is blocked.")
+	Validation = false
+	Parameters.Severity = 1
+	Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckPromoteSynchroObjects","")
+}
+
+if (ThisObject.IsSupporting("AT_ENG_STANDARD_PRODUCT") == true)
+{
+	if ( true == ThisObject -> HasAttribute( "V_maturity" ))
+	{
+		maturity = ThisObject -> GetAttributeString( "V_maturity" )
+		Trace(1,"maturity test: ", maturity)
+		if ( maturity <> "PRIVATE" )
+		{
+			trace(1,"Promote Is blocked.")
+			Validation = false
+			Parameters.Severity = 1
+			Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckPromoteSynchroObjects","")
+		}
+	}
+}
+
+if (ThisObject.IsSupporting("AT_ENG_DEFORMED"))
+{
+	if ( true == ThisObject -> HasAttribute( "AT_DeformType" ) )
+	{
+		DeformType = ThisObject -> GetAttributeString( "AT_DeformType" )
+		Trace(1,"Deform Type: ", DeformType)
+	}
+	
+	if ( true == ThisObject -> HasAttribute( "AT_DeformValue" ) )
+	{
+		DeformValue = ThisObject -> GetAttributeString( "AT_DeformValue" )
+		Trace(1,"Deform Value: ", DeformValue)
+	}
+	
+	if ( DeformType == "" OR DeformValue == "")
+	{
+		trace(1,"Promote Is blocked for Deformed.")
+		Validation = false
+		Parameters.Severity = 1
+		Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckPromoteDeformedAttr","")
+	}
+	
+	if(true == Validation)
+	{
+		Validation = false
+		
+		Set ListChild = ThisObject.Children
+		I_NbChild = ListChild.Size()
+		trace(1,"Size of children under Deformed = " + I_NbChild )
+		if( I_NbChild > 0)
+		{
+			for I_IdxChild while ((I_IdxChild <= I_NbChild) AND (false == Validation))
+			{
+				set P_RepInstChild = ListChild->GetItem(I_IdxChild)
+				if(P_RepInstChild <> NULL)
+				{
+					Set ListRepChild = P_RepInstChild.Children
+					I_NbRepChild = ListRepChild.Size()
+					Trace(1,"No of Rep Children = " + ListRepChild.Size() )
+					if(ListRepChild.Size() > 0)
+					{
+						set P_RepChildEntity = ListRepChild->GetItem(1)
+						trace(1,"RepChildEntity Type: " + P_RepChildEntity.PrimaryType.Name )
+
+						if(P_RepChildEntity.IsSupporting("AT_ENG_3DSHAPE"))
+						{
+							trace(1,"AT_ENG_3DSHAPE found.")
+							Validation = true
+						}
+					}
+				}
+			}
+		}
+		
+		if(false == Validation)
+		{
+			trace(1,"Promote Is blocked for Deformed.")
+			Parameters.Severity = 1
+			Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckPromoteDeformed3dShape","")
+		}
+	}
+}
+
+if (ThisObject.IsSupporting("AT_ENG_PRODUCT_3DSPECIF") == true OR ThisObject.IsSupporting("AT_ENG_PRODUCT_2DSPECIF") == true )
+{
+	currentState = Parameters->GetAttributeString("CurrentState")
+	transition = Parameters->GetAttributeString("Transition")
+	
+	Trace (1,"PLMCheckMaturity currentState = ",currentState)
+	Trace (1,"PLMCheckMaturity transition = ",transition)
+	
+	if (currentState == "IN_WORK" AND transition == "ToRelease")
+	{ 
+		Trace(1,"PLMCheckMaturity Direct Promote to Release Is blocked.")
+		Validation=false
+		Parameters.Severity = 1
+		Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckPromoteDirectRelease","")
+	}
+}
+
+trace(1,"Fin BL PLMCheckMaturity AT_ENG_PRODUCT")

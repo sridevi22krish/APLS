@@ -1,0 +1,39 @@
+let B_isVPLMControlled (BOOLEAN)
+let maturity(STRING)
+Let ByPassTransferOwnerShip(STRING)
+
+Validation = true
+ByPassTransferOwnerShip =""
+//ByPassTransferOwnerShip = GetEnvVariableValue("AT_BYPASS_3D_OWNERSHIP_TRANSFER_CHECK")
+
+if ( true == ThisObject -> HasAttribute( "V_maturity" ) )
+{
+	maturity = ThisObject -> GetAttributeString( "V_maturity" )
+	Trace(1,"maturity test: ", maturity)
+	if ( maturity == "FROZEN" OR maturity == "RELEASED")
+	{
+		Parameters.Severity = 3
+		Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_NoModifOnPeerReview","")	
+		Validation = false
+	}
+}
+
+if (Validation <> false)
+{
+	if (ThisObject->HasAttribute("V_isVPLMControlled"))
+	{
+		B_isVPLMControlled = ThisObject->GetAttributeBoolean("V_isVPLMControlled")
+	}
+	
+	/*Block Transfer Ownership if object is synchronized from web and Env variable activated*/
+	if ( ByPassTransferOwnerShip == NULL OR ByPassTransferOwnerShip == "" )	
+	{	
+		if(B_isVPLMControlled == false)	
+		{
+			Trace(1,"Object synchronized ==> Transfer Ownership blocked")
+			Validation = false
+			Parameters.Severity = 1
+			Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckTransferOwnership_BlockedForSynchroObject","")	
+		}	
+	}
+}

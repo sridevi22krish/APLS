@@ -1,0 +1,8 @@
+<Scripts>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_DESIGN_PRODUCT" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_COS" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_STANDARD_PRODUCT" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_DEFORMED" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_PRODUCT_3DSPECIF" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+	<Script OpeningID="PLMCheckMaturity" Type="AT_ENG_PRODUCT_2DSPECIF" ScriptName="AT_EngSpec_CheckMaturity"></Script>
+</Scripts>

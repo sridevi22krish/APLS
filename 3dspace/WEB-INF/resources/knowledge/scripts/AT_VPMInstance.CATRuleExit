@@ -1,0 +1,6 @@
+<Scripts>
+	
+	<Script OpeningID="PLMPreCheckDelete" Type="VPMInstance" ScriptName="AT_VPMInstance_PLMPreCheckDelete"></Script>
+	<Script OpeningID="PLMPreCheckDelete" Type="VPMRepInstance" ScriptName="AT_VPMInstance_PLMPreCheckDelete"></Script>
+	
+</Scripts>

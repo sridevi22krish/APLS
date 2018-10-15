@@ -1,0 +1,717 @@
+/*
+AIM : Behavior when the maturity is change on the MCA
+Modify by : ACN
+Modify date : 25/09/2017
+Modification : Change the V_Name by AT_DescriptionEN for the attribut to check on ebom object
+
+*/
+let isPublished (Boolean)
+let iFromState=""
+let iTransition=""
+
+let i(Integer)
+let s(Integer)
+let psKO(Integer)
+let progressStatusList(List)
+let StatusValue(String)
+let mainOperation=""
+
+let ListImpl(List)
+let implementedItemsList(List)
+
+let implementedItem(KweImplementedItemFamily)
+let BeforeECA(KweImplementedItemFamilyMember)
+let AfterECA(KweImplementedItemFamilyMember)
+
+let beforeList(List)
+let afterList(List)
+
+let BeforeObjectList(List)
+let AfterObjectList(List)
+let FamilyObjects(List)
+
+let familyMember(PLMEntity)
+
+let ListImplProductMaturity(List)
+let ListImplProcessMaturity(List)
+let ListImplFunctionalMaturity(List)
+let ListImplLogicalMaturity(List)
+
+/*--------------------------------------*/
+/*   FOR REPORTED AGAINST CHECK (start) */
+/*--------------------------------------*/
+let ReportedAgainstMember(PLMEntity)
+let ListOfReportedAgainst(List)
+/* eBOM */
+let ListOfReportedAgainstProduct(List)
+let ListOfReportedAgainstVPMReference(List)
+
+/* mBOM */
+let ListOfReportedAgainstProcess(List)
+let ListOfPermitedReportedAgainstProcess(List)
+/* Factory */
+let ListOfReportedAgainstFactory(List)
+let ListOfReportedAgainstGeneralSystem(List)
+
+/* RSC */
+let ListOfReportedAgainstManufacturingCell(List)
+
+/* Boolean results   */
+let bEbOMAffectedItemTestOK(Boolean)
+let bmBOMAffectedItemTestOK(Boolean)
+let bFactoryAffectedItemTestOK(Boolean)
+let bResourceAffectedItemTestOK(Boolean)
+
+let bEbOMAffectedItemTestUnicity(Boolean)
+let bmBOMAffectedItemTestUnicity(Boolean)
+let bFactoryAffectedItemTestUnicity(Boolean)
+let bResourceAffectedItemTestUnicity(Boolean)
+
+let bAffectedItemsGlobalCheckOK(Boolean)
+
+
+let bNeedAffectedItemsCheck(Boolean)
+
+let streBOMStatus= "KO"
+let streBOMTitle= ""
+
+let strmBOMStatus= "KO"
+let strmBOMTitle= ""
+
+let strFACTORYStatus= "KO"
+let strFACTORYTitle= ""
+
+let strResourceStatus= "KO"
+let strResourceTitle= ""
+
+let strUNICITY= ""
+
+let ListOfStatus(List)
+/*------------------------------------*/
+/*   FOR REPORTED AGAINST CHECK (end) */
+/*------------------------------------*/
+
+let ListChild (List)
+let ListChildMaturity (List)
+i=1
+s=0
+psKO=0
+
+Validation = true
+
+/* AffectedItems Check */
+bEbOMAffectedItemTestOK = false
+bmBOMAffectedItemTestOK = false
+bFactoryAffectedItemTestOK = false
+bResourceAffectedItemTestOK = false
+
+
+bEbOMAffectedItemTestUnicity = true
+bmBOMAffectedItemTestUnicity = true
+bFactoryAffectedItemTestUnicity = true
+bResourceAffectedItemTestUnicity = true
+
+
+
+
+
+bAffectedItemsGlobalCheckOK = false
+bNeedAffectedItemsCheck = false
+
+
+iFromState = Parameters.GetAttributeString("CurrentState")
+iTransition = Parameters.GetAttributeString("Transition")
+
+Trace(1,"Entering the BL - ChangeMaturity for ECAs - Custom BL")
+
+if ( iFromState == "DesignWork" and iTransition == "Propose" )
+{
+	Trace(1,"UE5 --- DesignWork to Review")
+        bNeedAffectedItemsCheck = true
+
+        Set ListChild=ThisObject.children
+        Trace(1,"children size = " + ListChild.Size() )
+        if ( ListChild.Size() > 0)
+        {
+                ListChildMaturity= ListChild.Filter("PLMCoreReference","x.V_maturity <> \"Completed\" and  x.V_maturity <> \"Review\" ")
+                Trace(1,"ListChildMaturity size = " + ListChildMaturity.Size() )
+                if (ListChildMaturity.Size() > 0)
+                {
+                        Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ChildECA_NotWA", "")
+                        Validation=false
+                }
+        }
+        Trace(1,"avant le get implemented items ")
+        implementedItemsList=ThisObject.GetImplementedItems()
+        Trace(1,"Number of families retrieved = " + implementedItemsList.Size() )
+
+        for implementedItem inside implementedItemsList
+        {
+                mainOperation = implementedItem.GetMainOperation()
+                Trace(1,"MainOperation of Family ------------------- " + mainOperation)
+
+                BeforeECA = implementedItem.GetBeforeECA()
+                AfterECA = implementedItem.GetAfterECA()
+
+                beforeList = BeforeECA.GetObjectPLMID()
+                afterList = AfterECA.GetObjectPLMID()
+
+                Trace(1,"Objets in the Family ------------------" + FamilyObjects.Size())
+				for familyMember inside beforeList
+                {
+                        Trace(1,"Implemented Item Name before ------------------- "+familyMember.PLM_ExternalID)
+						FamilyObjects.Append(familyMember)
+                }
+				for familyMember inside afterList
+                {
+                        Trace(1,"Implemented Item Name after ------------------- "+familyMember.PLM_ExternalID)
+						FamilyObjects.Append(familyMember)
+                }
+
+                if ( FamilyObjects.Size() > 0)
+                {
+                        /* AT DLM Patch 1, Wei SHI, make inactive the control of implemented items' state when maturity change */
+						/*
+						ListImplProductMaturity=FamilyObjects.Filter("VPMReference"," x.V_maturity <> \"\" and x.V_maturity <> \"FROZEN\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\" ")
+                        Trace(1,"ListImplProductMaturity size = " + ListImplProductMaturity.Size() )
+                        if ( ListImplProductMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+
+                        ListImplProcessMaturity=FamilyObjects.Filter("DELFmiFunctionReference","x.V_maturity <> \"\" and x.V_maturity <> \"FROZEN\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\" ")
+                        Trace(1,"ListImplProcessMaturity size = " + ListImplProcessMaturity.Size() )
+
+                        if (ListImplProcessMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+						*/
+                        ListImplFunctionalMaturity=FamilyObjects.Filter("RFLPLMFunctionalReference","x.V_maturity <> \"\" and x.V_maturity <> \"FROZEN\"  and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\"  ")
+                        Trace(1,"ListImplFunctionalMaturity size = " + ListImplFunctionalMaturity.Size() )
+                        if ( ListImplFunctionalMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+
+                        ListImplLogicalMaturity=FamilyObjects.Filter("RFLVPMLogicalReference","x.V_maturity <> \"\" and x.V_maturity <> \"FROZEN\"  and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\"  ")
+                        Trace(1,"ListImplLogicalMaturity size = " + ListImplLogicalMaturity.Size() )
+                        if (ListImplLogicalMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+                }
+        }
+
+        /* AT Request to deactivate progessStatus check */
+        /*progressStatusList=ThisObject.progressStatus
+        s=progressStatusList.Size()
+        for i while i <=s
+        {
+                StatusValue=progressStatusList.GetItem(i)
+                if (( StatusValue <> "Implemented") and (StatusValue <>"NoActionNeeded"))
+                        psKO=psKO+1
+        }
+        if (psKO > 1)
+        {
+                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_AffItemsPS_NotOK", "")
+                Validation=false
+        }*/
+}
+else if ( iFromState == "DesignWork" and iTransition == "Stop" )
+{
+        Trace(1,"UE5 --- DesignWork to Create")
+
+        Set ListChild=ThisObject.children
+        if ( ListChild.Size() > 0 )
+        {
+                ListChildMaturity=ListChild.Filter("PLMCoreReference","x.V_maturity <> \"Create\" ")
+                if ( ListChildMaturity.Size() > 0 )
+                {
+                        Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ChildECA_NotPR", "")
+                        Validation=false
+                }
+        }
+}
+else if ( iFromState == "Review" and iTransition == "Complete" )
+{
+        Trace(1,"UE5 --- Review to Completed")
+        bNeedAffectedItemsCheck = true
+
+        isPublished=ThisObject.isPublished
+        Trace (1,"UE5 Trace test isPublished", isPublished)
+        if (isPublished == "false" )
+        {
+                Trace(3,"UE5 --- Review to Completed --- isPublished = false")
+                Validation=false
+        }
+
+        Set ListChild=ThisObject.children
+        if ( ListChild.Size() > 0)
+        {
+                ListChildMaturity=ListChild.Filter("PLMCoreReference","x.V_maturity <> \"\" and x.V_maturity <> \"Completed\" ")
+                if ( ListChildMaturity.Size() > 0 )
+                {
+                        Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ChildECA_NotSH", "")
+                        Validation=false
+                }
+
+        }
+
+        Trace(1,"avant le get implemented items ")
+        implementedItemsList=ThisObject.GetImplementedItems()
+        Trace(1,"Number of families retrieved = " + implementedItemsList.Size() )
+
+        for implementedItem inside implementedItemsList
+        {
+                mainOperation = implementedItem.GetMainOperation()
+                Trace(1,"MainOperation of Family ------------------- " + mainOperation)
+
+                BeforeECA = implementedItem.GetBeforeECA()
+                AfterECA = implementedItem.GetAfterECA()
+
+                beforeList = BeforeECA.GetObjectPLMID()
+                afterList = AfterECA.GetObjectPLMID()
+
+                Trace(1,"Objets in the Family ------------------" + FamilyObjects.Size())
+				for familyMember inside beforeList
+                {
+                        Trace(1,"Implemented Item Name before ------------------- "+familyMember.PLM_ExternalID)
+						FamilyObjects.Append(familyMember)
+                }
+				for familyMember inside afterList
+                {
+                        Trace(1,"Implemented Item Name after ------------------- "+familyMember.PLM_ExternalID)
+						FamilyObjects.Append(familyMember)
+                }
+
+                if ( FamilyObjects.Size() > 0)
+                {
+                        /* AT DLM Patch 1, Wei SHI, make inactive the control of implemented items' state when maturity change */
+						/*
+						ListImplProductMaturity=FamilyObjects.Filter("VPMReference"," x.V_maturity <> \"\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\" ")
+                        Trace(1,"ListImplProductMaturity size = " + ListImplProductMaturity.Size() )
+                        if ( ListImplProductMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+
+                        ListImplProcessMaturity=FamilyObjects.Filter("DELFmiFunctionReference","x.V_maturity <> \"\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\" ")
+                        Trace(1,"ListImplProcessMaturity size = " + ListImplProcessMaturity.Size() )
+
+                        if (ListImplProcessMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+						*/
+
+                        ListImplFunctionalMaturity=FamilyObjects.Filter("RFLPLMFunctionalReference","x.V_maturity <> \"\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\"  ")
+                        Trace(1,"ListImplFunctionalMaturity size = " + ListImplFunctionalMaturity.Size() )
+                        if ( ListImplFunctionalMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+
+                        ListImplLogicalMaturity=FamilyObjects.Filter("RFLVPMLogicalReference","x.V_maturity <> \"\" and  x.V_maturity <> \"RELEASED\" and  x.V_maturity <> \"OBSOLETE\"  ")
+                        Trace(1,"ListImplLogicalMaturity size = " + ListImplLogicalMaturity.Size() )
+                        if (ListImplLogicalMaturity.Size() > 0)
+                        {
+                                Parameters.NLSMessage = BuildDeferredMessageNLS("PLMActionEditor", "ErrorProp_ImplItems_NotWA", "")
+                                Validation=false
+                        }
+                }
+        }
+}
+
+
+if ( iFromState == "Create" and iTransition == "Start" )
+{
+        Trace(1,"UE5 --- Create to Start")
+        bNeedAffectedItemsCheck = true
+
+}
+
+if( ThisObject <> NULL)
+{
+	if(bNeedAffectedItemsCheck and true == ThisObject->IsASortOf("PLMManufacturingAction"))
+	{
+			Trace(1,"UE5 --- TEST AT Check for Promoting MCA")
+			Trace(1,"Call affectedItems ")
+			ListOfReportedAgainst =ThisObject.reportedAgainstItems
+			Trace(1,"ListOfReportedAgainst size = " + ListOfReportedAgainst.Size())
+
+			if (ListOfReportedAgainst.Size() > 0)
+			{
+					/* ----------*/
+					/*  eBOM */ 
+					/* ----------*/
+					ListOfReportedAgainstProduct= ListOfReportedAgainst.Filter("VPMReference","")
+					ListOfReportedAgainstProduct=ListOfReportedAgainstProduct.Filter("VPMReference","x->IsASortOf(\"AT_ENG_TRAINSET\") 
+					OR x->IsASortOf(\"AT_ENG_VEHICLE\") 
+					OR x->IsASortOf(\"AT_ENG_ZONE\")
+					OR x->IsASortOf(\"AT_ENG_CONFIGURATION_ITEM\")")
+																									  
+					Trace(1,"ListOfReportedAgainstProduct size = " + ListOfReportedAgainstProduct.Size())
+					if(ListOfReportedAgainstProduct.Size() > 1)
+					{
+							bEbOMAffectedItemTestOK = false
+							streBOMTitle ="THERE SHOULD BE ONLY ONE EBOM OBJECT"
+							bEbOMAffectedItemTestUnicity = false
+					}
+					else
+					{
+							for ReportedAgainstMember inside ListOfReportedAgainstProduct
+							{
+									Trace(1,"Reported against [eBOM] Item Name  ------------------- "+ReportedAgainstMember.PLM_ExternalID) 
+									if(ReportedAgainstMember <> NULL)
+									{
+										//QC5093 -Start
+										if(ReportedAgainstMember->IsASortOf("AT_ENG_CONFIGURATION_ITEM"))
+										{
+											if(ReportedAgainstMember->HasAttribute("V_Name"))
+											{
+												streBOMTitle = ReportedAgainstMember.V_Name
+											bEbOMAffectedItemTestOK = true
+											}
+											
+										}
+										else if(ReportedAgainstMember->HasAttribute("AT_DescriptionEN")) 
+										{   
+											streBOMTitle = ReportedAgainstMember.GetAttributeString("AT_DescriptionEN")
+											bEbOMAffectedItemTestOK = true
+										}
+										//QC5093-End
+									}          
+							}
+					}
+					/* ----------*/
+					/*  mBOM     */ 
+					/* ----------*/
+					ListOfReportedAgainstProcess= ListOfReportedAgainst.Filter("DELFmiFunctionReference","")
+
+					ListOfPermitedReportedAgainstProcess= ListOfReportedAgainstProcess.Filter("DELFmiFunctionReference","x->IsASortOf(\"AT_Contract\") 
+																														  OR x->IsASortOf(\"AT_Trainset\") 
+																														  OR x->IsASortOf(\"AT_Vehicule\") 
+																														  OR x->IsASortOf(\"AT_Zone\") 
+																														  OR x->IsASortOf(\"AT_Installation\")
+																														  OR x->IsASortOf(\"AT_Assembly\") 
+																														  OR x->IsASortOf(\"AT_Kit\") 
+																														  OR x->IsASortOf(\"AT_ManufacturedPart\")  
+																														  OR x->IsASortOf(\"AT_Material\")")
+
+					Trace(1,"ListOfPermitedReportedAgainstProcess size = " + ListOfPermitedReportedAgainstProcess.Size())
+
+					if(ListOfPermitedReportedAgainstProcess.Size() > 1)
+					{
+							bmBOMAffectedItemTestOK = false
+							strmBOMTitle ="THERE SHOULD BE ONLY ONE MBOM OBJECT"
+					}
+					else
+					{
+							for ReportedAgainstMember inside ListOfPermitedReportedAgainstProcess
+							{
+									Trace(1,"Reported against [mBOM] Item Name  ------------------- "+ReportedAgainstMember.PLM_ExternalID)
+									if(ReportedAgainstMember <> NULL)
+									{
+										if(ReportedAgainstMember->HasAttribute("V_Name")) 
+										{   
+											strmBOMTitle = ReportedAgainstMember.V_Name
+											bmBOMAffectedItemTestOK = true
+										}
+									}  
+
+							}
+					}    
+
+
+					/* ----------*/
+					/*  Factory  */ 
+					/* ----------*/
+					ListOfReportedAgainstGeneralSystem = ListOfReportedAgainst.Filter("DELLmiGeneralSystemReference","")
+
+					ListOfReportedAgainstFactory = ListOfReportedAgainstGeneralSystem.Filter("AT_Factory","")
+					Trace(1,"ListOfReportedAgainstFactory size = " + ListOfReportedAgainstFactory.Size())
+
+					/*if(ListOfReportedAgainstFactory.Size() > 1)
+					{
+							bFactoryAffectedItemTestOK = false
+							strFACTORYTitle = "THERE SHOULD BE ONLY ONE FACTORY OBJECT"
+					}
+					else
+					{*/
+							for ReportedAgainstMember inside ListOfReportedAgainstFactory
+							{
+									Trace(1,"Reported against [FACTORY] Item Name  ------------------- "+ReportedAgainstMember.PLM_ExternalID)
+									if(ReportedAgainstMember <> NULL)
+									{
+										if(ReportedAgainstMember->HasAttribute("V_Name")) 
+										{   
+											strFACTORYTitle = strFACTORYTitle + ", " + ReportedAgainstMember.V_Name
+											bFactoryAffectedItemTestOK = true
+										}
+									}       
+							}                        
+					/*}*/
+					
+
+
+					/* ---------------------*/
+					/*  Manufacturing Cell  */ 
+					/* ----------------------*/
+					ListOfReportedAgainstManufacturingCell = ListOfReportedAgainst.Filter("VPMReference","x.V_discipline == \"Organizational\" ")
+					Trace(1,"ListOfReportedAgainstManufacturingCell size = " + ListOfReportedAgainstManufacturingCell.Size())
+
+					if(ListOfReportedAgainstManufacturingCell.Size() > 1)
+					{
+							bResourceAffectedItemTestOK = false
+							strResourceTitle = "THERE SHOULD BE ONLY ONE RESOURCE OBJECT"
+					}
+					else
+					{
+							for ReportedAgainstMember inside ListOfReportedAgainstManufacturingCell
+							{
+									Trace(1,"Reported against [RESOURCE] Item Name  ------------------- "+ReportedAgainstMember.PLM_ExternalID)
+									if(ReportedAgainstMember <> NULL)
+									{
+										if(ReportedAgainstMember->HasAttribute("V_Name")) 
+										{   
+											strResourceTitle = ReportedAgainstMember.V_Name
+											bResourceAffectedItemTestOK = true
+										}
+									}          
+							}     
+					}
+
+
+					/* PHYSICAL PRODUCT CHECK */
+					ListOfReportedAgainstVPMReference = ListOfReportedAgainst.Filter("VPMReference","")
+					if((ListOfReportedAgainstVPMReference.Size() + ListOfReportedAgainstProcess.Size() + ListOfReportedAgainstGeneralSystem.Size() == 3) AND
+					   (ListOfReportedAgainstVPMReference.Size() == 0 OR ListOfReportedAgainstProcess.Size() == 0 OR ListOfReportedAgainstGeneralSystem.Size() == 0))
+					{
+							Trace(1,"CASE : UNICITY")
+							strUNICITY = "REPORTED AGAINST UNICITY : KO ( MULTIPLE EBOM or MBOM  or RESSOURCE )"
+					}
+
+					if(bEbOMAffectedItemTestOK){streBOMStatus = "OK"}else{streBOMStatus ="KO"}
+					if(streBOMTitle == ""){streBOMTitle = "NO CONSISTENT eBOM"}
+
+					if(bmBOMAffectedItemTestOK){strmBOMStatus = "OK"}else{strmBOMStatus = "KO"}
+					if(strmBOMTitle == ""){strmBOMTitle = "NO CONSISTENT mBOM"}
+
+					if(bFactoryAffectedItemTestOK){strFACTORYStatus = "OK"}else{strFACTORYStatus ="KO"}
+					if(strFACTORYTitle == ""){strFACTORYTitle = "NO CONSISTENT SYSTEM"}
+
+					if(bResourceAffectedItemTestOK){strResourceStatus = "OK"} else{strResourceStatus = "KO"}
+					if(strResourceTitle == ""){strResourceTitle ="NO CONSISTENT RESOURCE"}
+
+					Trace(1,"streBOMStatus" + streBOMStatus)
+					Trace(1,"streBOMTitle" + streBOMTitle)
+					Trace(1,"strmBOMStatus" + strmBOMStatus)
+					Trace(1,"strmBOMTitle" + strmBOMTitle)
+					Trace(1,"strFACTORYStatus" + strFACTORYStatus)
+					Trace(1,"strFACTORYTitle" + strFACTORYTitle)
+					Trace(1,"strResourceStatus" + strResourceStatus)
+					Trace(1,"strResourceTitle" + strResourceTitle)
+
+					if(bEbOMAffectedItemTestOK ==false AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 1)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp1_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 2)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp2_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 3)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp3_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 4)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp4_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 5)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp5_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 6)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp6_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 7)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp7_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK == false AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 8)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp8_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 9)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp9_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 10)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp10_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 11)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp11_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK == false AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 12)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp12_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 13)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp13_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK == false AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 14)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp14_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK == false)
+					{
+							Trace(1,"UC------>" + 15)
+							Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp15_AffedItems_AT_GoldenRules",
+																	   streBOMTitle,
+																	   strmBOMTitle,
+																	   strFACTORYTitle,
+																	   strResourceTitle,
+																	   strUNICITY)
+							Validation=false
+					}
+					else if(bEbOMAffectedItemTestOK AND bmBOMAffectedItemTestOK AND bFactoryAffectedItemTestOK AND bResourceAffectedItemTestOK)
+					{
+							Trace(1,"UC------>" + 16)
+							if(strUNICITY <> "")
+							{
+									Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp16_AffedItems_AT_GoldenRules",
+																			   streBOMTitle,
+																			   strmBOMTitle,
+																			   strFACTORYTitle,
+																			   strResourceTitle,
+																			   strUNICITY)
+									Validation=false      
+							}
+
+					}
+
+			}
+			else
+			{
+					Trace(1,"UC (no affected item)------>" + 1)
+					Parameters.NLSMessage = BuildKweMessageNLS("AT_PLMActionEditor", "InfosProp1_AffedItems_AT_GoldenRules",
+															   streBOMTitle,
+															   strmBOMTitle,
+															   strFACTORYTitle,
+															   strResourceTitle,
+															   strUNICITY)
+					Validation=false
+			}
+	}
+}

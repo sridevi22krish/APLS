@@ -1,0 +1,24 @@
+<Scripts>
+
+  <Script OpeningID="PLMActionCreate" Type="AT_Contract"               ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Trainset"               ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Vehicule"               ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Zone"                   ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Installation"           ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Assembly"               ScriptName="AT_ChangeControlledPropagate" />
+
+  <Script OpeningID="PLMActionCreate" Type="AT_ManufacturedPart"       ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_ContinuousPart"         ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Provide"                ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_DiscretePart"           ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Kit"                    ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Material"               ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_ContinuousProvidedPart" ScriptName="AT_ChangeControlledPropagate" />
+
+  <Script OpeningID="PLMActionCreate" Type="AT_Factory"                ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_ProductLine"            ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Workstation"            ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Routing"                ScriptName="AT_ChangeControlledPropagate" />
+  <Script OpeningID="PLMActionCreate" Type="AT_Operation"              ScriptName="AT_ChangeControlledPropagate" />
+
+</Scripts>

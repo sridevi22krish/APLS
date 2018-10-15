@@ -1,0 +1,102 @@
+Let I_IdxInstOwnerRef(Integer)
+Let I_NbInstOwnerRef(Integer)
+Let L_InstOwnerRef(List)
+Let P_InstOwnerRef(PLMCoreReference)
+Let RefChildrenList(List)
+Let ThisObjectRef (PLMCoreReference)
+Let UserRole(String)
+Let UserOrga (String)
+Let UserProj (String)
+Let FatherOrga (String)
+Let FatherProj (String)
+Let FatherMaturity (String)
+Let ChildOrga (String)
+Let ChildProj (String)
+
+trace(1,"Debut BL PLMPreCheckDelete VPMInstance")
+
+Validation = true
+I_IdxInstOwnerRef = 1
+
+
+if (Parameters->HasAttribute("Role") == true)
+{
+	UserRole = Parameters->GetAttributeString("Role")
+}
+if (Parameters->HasAttribute("Organization") == true)
+{
+	UserOrga = Parameters->GetAttributeString("Organization")
+}
+if (Parameters->HasAttribute("Project") == true)
+{
+	UserProj = Parameters->GetAttributeString("Project")
+}
+
+Set RefChildrenList = ThisObject.Children
+if ( RefChildrenList->Size() > 0 )
+{
+	Set ThisObjectRef = RefChildrenList->GetItem(1)
+	if ( ThisObjectRef <> NULL ) 
+	{
+		if (ThisObjectRef->HasAttribute("project") == true)
+		{
+			ChildProj = ThisObjectRef->GetAttributeString("project")
+		}
+		if (ThisObjectRef->HasAttribute("organization") == true)
+		{
+			ChildOrga = ThisObjectRef->GetAttributeString("organization")
+		}
+	}
+}
+
+/* Empecher la suppression d'une instance de CI sous une reference de Zone */
+if (true == ThisObject.HasAttribute("Owner") AND (true == Validation))
+{
+	set L_InstOwnerRef = ThisObject.Owner
+	I_NbInstOwnerRef = L_InstOwnerRef->Size()
+	for I_IdxInstOwnerRef while ((I_IdxInstOwnerRef <= I_NbInstOwnerRef) AND (true == Validation))
+	{
+		set P_InstOwnerRef = L_InstOwnerRef->GetItem(I_IdxInstOwnerRef)
+		if ( (true == P_InstOwnerRef.IsSupporting("AT_ENG_TRAINSET")) OR (true == P_InstOwnerRef.IsSupporting("AT_ENG_VEHICLE")) OR (true == P_InstOwnerRef.IsSupporting("AT_ENG_ZONE")) )
+		{
+			if (P_InstOwnerRef->HasAttribute("project") == true)
+			{
+				FatherProj = P_InstOwnerRef->GetAttributeString("project")
+			}
+			if (P_InstOwnerRef->HasAttribute("organization") == true)
+			{
+				FatherOrga = P_InstOwnerRef->GetAttributeString("organization")
+			}
+			if ( (UserOrga <> "Architecture") OR ((FatherProj <> "") AND (FatherProj <> UserProj)) )
+			{
+				Validation = false
+				Parameters.Severity = 2
+				Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL", "AT_CheckDeleteVPMInstance_ERR01")
+				Trace(2,"Delete VPMInstance refused : unable to disconnect this object from Architecture data with this context")
+			}
+			if ( true == ThisObjectRef.IsSupporting("AT_ENG_VEHICLE") OR true == ThisObjectRef.IsSupporting("AT_ENG_ZONE") )
+			{
+				if ( UserRole <> "VPLMProjectLeader" )
+				{
+					Validation = false
+					Parameters.Severity = 2
+					Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL", "AT_CheckDeleteVPMInstance_ERR01")
+					Trace(2,"Delete VPMInstance refused : unable to disconnect this object from Architecture data with this context")
+				}
+			}
+		}
+		if (P_InstOwnerRef.HasAttribute("V_maturity"))
+		{
+			FatherMaturity = P_InstOwnerRef->GetAttributeString("V_maturity")
+			if ( FatherMaturity == "FROZEN" OR FatherMaturity == "RELEASED")
+			{
+				Validation = false
+				Parameters.Severity = 2
+				Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL", "AT_NoModifOnPeerReview")
+				Trace(2,"Delete VPMInstance refused : unable to disconnect this object as Father is not in state IN_WORK")
+			}
+		}
+	}
+}
+
+trace(1,"Fin BL PLMPreCheckDelete VPMInstance")

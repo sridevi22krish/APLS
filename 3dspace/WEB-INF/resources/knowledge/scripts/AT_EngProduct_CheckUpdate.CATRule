@@ -1,0 +1,39 @@
+let S_CurrentState(String)
+Let currentMass (Real)
+Let ComputMass (Real)
+
+Validation = true
+
+S_CurrentState = ThisObject->GetAttributeString("current")
+
+/* State Frozen is blocked by BL, State InWork is normaly blocked by OneClick but done here for safety */
+if (S_CurrentState == "FROZEN")
+{
+	Validation = false
+	Parameters.Severity = 1
+	Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckUpdateProduct","")
+}
+
+/*if (ThisObject->IsSupporting("AT_ENG_DESIGN_PRODUCT") == true) {
+	
+	if(ThisObject->HasAttribute("AT_Real_Mass")==true)
+	{
+		currentMass = ThisObject->GetAttributeReal("AT_Real_Mass")
+	}
+	
+	if(ThisObject->HasAttribute("AT_Comput_Mass")==true)
+	{
+		ComputMass = ThisObject->GetAttributeReal("AT_Comput_Mass")
+	}
+	
+	Trace(1,"Declar mass #, comput mass ",currentMass,ComputMass)
+	
+	if(ComputMass == 0 and currentMass == 0)
+	{
+		Validation = false
+		
+		Parameters.Severity = 1
+		Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckMassNull","")
+		
+	}
+}*/

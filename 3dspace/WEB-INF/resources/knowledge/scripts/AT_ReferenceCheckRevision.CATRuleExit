@@ -1,0 +1,17 @@
+<Scripts>
+	
+	<Script OpeningID="PLMPreCheckNewVersion" Type="VPMReference" ScriptName="AT_EngProduct_CheckNewVersion"></Script>
+	<Script OpeningID="PLMPreCheckNewVersion" Type="VPMRepReference" ScriptName="AT_EngProduct_CheckNewVersion"></Script>
+	
+	<Script OpeningID="PLMPreCheckUpdate" Type="AT_ENG_PRODUCT" ScriptName="AT_EngProduct_CheckUpdate"></Script>
+	<Script OpeningID="PLMPreCheckUpdate" Type="AT_ENG_DRAWING" ScriptName="AT_EngProduct_CheckUpdate"></Script>
+	<Script OpeningID="PLMPreCheckUpdate" Type="AT_ENG_3DSHAPE" ScriptName="AT_EngProduct_CheckUpdate"></Script>
+	
+	<Script OpeningID="PLMPostCheckUpdate" Type="AT_ENG_PRODUCT" ScriptName="AT_EngProduct_PostCheckUpdate"></Script>
+	
+	<Script OpeningID="PLMActionClone" Type="AT_ENG_PRODUCT" ScriptName="AT_EngProduct_OnDuplicate"></Script>
+	<Script OpeningID="PLMActionClone" Type="AT_ENG_DRAWING" ScriptName="AT_EngProduct_OnDuplicate"></Script>
+	<Script OpeningID="PLMActionClone" Type="AT_ENG_3DSHAPE" ScriptName="AT_EngProduct_OnDuplicate"></Script>
+	<Script OpeningID="PLMActionClone" Type="VPMInstance" ScriptName="AT_EngProduct_OnDuplicate"></Script>
+	
+</Scripts>

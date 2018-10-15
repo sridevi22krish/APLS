@@ -1,0 +1,181 @@
+// ==============================================================================
+// Syntax: 
+//   MASK DEFAULT
+//   ENTITY <entity>
+//   ATTR   <attr>;<required>;<are_values_authorized_values>;<def_val>
+//   VALUE  <value>
+//   FUNC   <method>
+//   FATTR  <attr>;<modif>
+// with: <entity>   = entity name
+//       <attr>     = atribute name
+//       <required> = required attr logical flag (Y or N)
+//       <are_values_authorized_values>
+//                  = authorized values logical flag (Y or N):
+//                    N -> help values / Y -> authorized values
+//       <def_val>  = default value
+//       <value>    = a string value (can have blanks)
+//                    When <are_values_authorized_values> equals:
+//                    N -> an help value / Y -> an authorized value
+//       <method>   = one of the following operations:
+//                    Create         : attr appears in creation panels
+//                    Read/List/Tree : attr appears in browse/query result panels
+//                    Write          : attr appears in properties panels
+//                    Query/EZQuery  : attr appears in query condition panels
+//       <modif>    = writable field logical flag (Y or N):
+//                    N -> NOT modifiable / Y -> modifiable
+// ==============================================================================
+MASK DEFAULT
+// --------------------------------------------------
+ENTITY AT_ENG_CORE_MATERIAL  
+// --------------------------------------------------
+ATTR PLM_ExternalID;Y;N;$
+ATTR V_AlternateName;N;N;$
+ATTR V_ApplicabilityDate;N;N;$
+ATTR V_Density;Y;N;$
+ATTR V_Domains;N;N;$
+ATTR V_Group;N;N;$
+ATTR V_Name;Y;N;$
+ATTR V_Spec;N;N;$
+ATTR V_description;N;N;$
+ATTR V_discipline;N;N;$
+ATTR V_fromExternalID;N;N;$
+ATTR V_nature;N;Y;$
+ATTR V_usage;N;N;$
+ATTR current;N;N;$
+ATTR revision;N;N;$
+ATTR majorrevision;N;N;$
+ATTR modified;N;N;$
+ATTR organization;N;N;$
+ATTR originated;N;N;$
+ATTR owner;N;N;$
+ATTR policy;N;N;$
+ATTR project;N;N;$
+ATTR reserved;N;N;$
+ATTR reservedby;N;N;$
+ATTR AT_GenericMat;N;N;$
+FUNC Create
+FATTR PLM_ExternalID;N
+FATTR V_Name;Y
+FATTR V_description;Y
+FATTR AT_GenericMat;Y
+FATTR V_Density;Y
+FUNC Query
+FATTR PLM_ExternalID;Y
+FATTR revision;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC EZQuery
+FATTR PLM_ExternalID;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC Write
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR V_Name;Y
+FATTR V_description;Y
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FATTR AT_GenericMat;Y
+FATTR V_Density;Y
+FUNC Read
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC Tree
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC List
+// --------------------------------------------------
+ENTITY AT_ENG_PROTECTION_MATERIAL 
+// --------------------------------------------------
+ATTR PLM_ExternalID;Y;N;$
+ATTR V_AlternateName;N;N;$
+ATTR V_ApplicabilityDate;N;N;$
+ATTR V_Density;N;N;$
+ATTR V_Domains;N;N;$
+ATTR V_Group;N;N;$
+ATTR V_Name;Y;N;$
+ATTR V_Spec;N;N;$
+ATTR V_description;N;N;$
+ATTR V_discipline;N;N;$
+ATTR V_fromExternalID;N;N;$
+ATTR V_nature;N;Y;$
+ATTR V_usage;N;N;$
+ATTR current;N;N;$
+ATTR revision;N;N;$
+ATTR majorrevision;N;N;$
+ATTR modified;N;N;$
+ATTR organization;N;N;$
+ATTR originated;N;N;$
+ATTR owner;N;N;$
+ATTR policy;N;N;$
+ATTR project;N;N;$
+ATTR reserved;N;N;$
+ATTR reservedby;N;N;$
+FUNC Create
+FATTR PLM_ExternalID;N
+FATTR V_Name;Y
+FATTR V_description;Y
+FUNC Query
+FATTR PLM_ExternalID;Y
+FATTR revision;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR current;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC EZQuery
+FATTR PLM_ExternalID;Y
+FATTR owner;Y
+FATTR originated;Y
+FATTR modified;Y
+FATTR organization;Y
+FATTR project;Y
+FUNC Write
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR V_Name;Y
+FATTR V_description;Y
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC Read
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR owner;N
+FATTR originated;N
+FATTR modified;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC Tree
+FATTR PLM_ExternalID;N
+FATTR revision;N
+FATTR V_Name;N
+FATTR current;N
+FATTR organization;N
+FATTR project;N
+FUNC List

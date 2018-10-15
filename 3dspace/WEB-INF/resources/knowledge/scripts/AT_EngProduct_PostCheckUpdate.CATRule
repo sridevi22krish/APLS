@@ -1,0 +1,104 @@
+Let currentMass (Real)
+Let ComputMass (Real)
+Let isAssembly(Boolean)
+Let ChildList(List)
+Let ChildListSize = 0
+Let index = 0
+Let currentInstPart(VPMInstance)
+Let ChildRefPart(VPMReference)
+Let ChildReftList(List)
+Let ObjectID (STRING)
+Let ObjectVersion (STRING)
+Let strVersionComment (STRING)
+Let strLen = 0
+Let strCATIA0 (STRING)
+
+Validation = true
+Set isAssembly = false
+
+
+if (ThisObject->IsSupporting("AT_ENG_DESIGN_PRODUCT") == true) {
+
+	ChildList = ThisObject.Children
+	ChildListSize = ChildList->Size()
+	index = 1
+	for index while index <= ChildListSize
+	{
+		currentInstPart = ChildList.GetItem (index)
+		if (currentInstPart <> NULL)
+		{
+			Trace(1,"currentInstPart type : " , currentInstPart.ModelerType.Name)
+			if (currentInstPart->IsSupporting("VPMReference"))
+			{
+				ChildRefPart = ChildList.GetItem (index)
+			}
+			else
+			{
+				ChildReftList = currentInstPart.Children
+				if ( ChildReftList->Size() > 0)
+				{
+					ChildRefPart = ChildReftList.GetItem(1)
+					
+				}
+			}
+			if (ChildRefPart <> NULL)
+			{
+				Trace(1,"ChildRefPart type : " , ChildRefPart.PrimaryType.Name)
+				if (isAssembly == false)
+				{
+					if (ChildRefPart.IsSupporting("AT_ENG_DESIGN_PRODUCT") OR ChildRefPart.IsSupporting("AT_ENG_STANDARD_PRODUCT") OR ChildRefPart.IsSupporting("AT_ENG_COS") or ChildRefPart.IsSupporting("AT_ENG_DEFORMED"))
+					{
+						isAssembly = true
+						Trace(1,"Children makes it an Assembly")
+					}
+					else 
+					{
+						Trace(1,"Not an assembly")
+					}
+				}
+			}
+		}
+	}
+	Trace(1,"End of calculating Assembly")
+	
+	if (isAssembly == false )
+	{
+		Trace(1,"we conclude it's not an Assembly")
+		
+		if(ThisObject->HasAttribute("AT_Real_Mass")==true)
+		{
+			currentMass = ThisObject->GetAttributeReal("AT_Real_Mass")
+		}
+		
+		if(ThisObject->HasAttribute("AT_Comput_Mass")==true)
+		{
+			ComputMass = ThisObject->GetAttributeReal("AT_Comput_Mass")
+		}
+		
+		ObjectID = ThisObject.GetAttributeString("PLM_ExternalID")
+		ObjectVersion = ThisObject.GetAttributeString("revision")
+		Trace(1,"For #, #: Declar mass #, comput mass ",ObjectID, ObjectVersion, currentMass, ComputMass)
+		
+		if(ComputMass == 0 and currentMass == 0)
+		{
+			strVersionComment = ThisObject->GetAttributeString("V_versionComment")
+			strLen = strVersionComment->Length()
+			Trace(1,"V_versionComment: #(#)",strVersionComment,strLen)
+			
+			if(strLen >= 13)
+			{
+				strCATIA0 = strVersionComment->Extract(strLen - 13,13)
+				Trace(1,"strCATIA0: ",strCATIA0)
+				
+				if(strCATIA0=="_BothMassZero")
+				{
+					Validation = false
+			
+					Parameters.Severity = 1
+					Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckMassNull","")
+				}
+			}
+			
+		}
+	}
+}

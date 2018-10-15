@@ -1,0 +1,19 @@
+let S_Transition(String)
+let S_ObjectLastPromoter(String)
+let S_CurrentUser(String)
+
+S_CurrentUser = Parameters->GetAttributeString("UserID")
+S_Transition = Parameters->GetAttributeString("Transition")
+S_ObjectLastPromoter = ThisObject->GetAttributeString("AT_LastPromoteUser")
+
+Trace(1,"Transition : ", S_Transition)
+Trace(1,"LastPromoter : ", S_ObjectLastPromoter)
+Trace(1,"UserID : ", S_CurrentUser)
+
+if(ThisObject->IsSupporting("AT_ENG_PRODUCT_2DSPECIF") == true OR ThisObject->IsSupporting("AT_ENG_PRODUCT_3DSPECIF") == true)
+{
+	if (S_Transition == "ToFreeze")
+	{
+		ThisObject->SetAttributeString("AT_LastPromoteUser", S_CurrentUser)
+	}
+}

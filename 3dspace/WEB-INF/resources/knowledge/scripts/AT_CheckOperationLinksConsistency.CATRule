@@ -1,0 +1,60 @@
+/* ----------------------------------------------------------------------------------------------------------- */
+/* Check if "operation link est consistent"													*/
+/* ----------------------------------------------------------------------------------------------------------- */
+Let S_description=""
+Let S_relationType=""
+Let I_SearchPositionSuppression=0
+Let I_SearchPositionCreation=0
+Validation = true
+
+Trace(1,"AT_CheckOperationLinksConsistency beginning")
+
+if(ThisObject <> NULL)
+{
+	if ( ThisObject.HasAttribute("AT_LinkConsistencyTag") == true )
+	{
+		S_description= ThisObject->GetAttributeString("AT_LinkConsistencyTag")
+
+		Trace(1,"AT_CheckOperationLinksConsistency -AT_LinkConsistencyTag value [" + S_description + "]")
+		if(S_description <> "")
+		{
+			Trace(1,"AT_CheckOperationLinksConsistency -Searching CapableTag_Suppression Tag")
+			I_SearchPositionSuppression = S_description.Search("CapableTag_Suppression",0,FALSE)
+			Trace(1,"AT_CheckOperationLinksConsistency - I_SearchPositionSuppression [" + I_SearchPositionSuppression + "]")
+			if ( I_SearchPositionSuppression  <> -1 )
+			{
+				Trace(1,"AT_CheckOperationLinksConsistency - 'CapableTag_Suppression'Tag is present so user need to use custom command to allocate Resource")
+				Validation = false
+				Parameters.NLSMessage = BuildKweMessageNLS("AT_BLServerNLS","AT_FailedOperationInconsitentLink")
+			}
+
+			Trace(1,"AT_CheckOperationLinksConsistency -Searching CapableTag_Creation Tag")
+			I_SearchPositionCreation = S_description.Search("CapableTag_Creation",0,FALSE)
+			Trace(1,"AT_CheckOperationLinksConsistency - I_SearchPositionCreation [" + I_SearchPositionCreation + "]")
+			if ( I_SearchPositionCreation  <> -1 )
+			{
+				Trace(1,"AT_CheckOperationLinksConsistency - 'CapableTag_Creation' Tag is present so user need to use custom command to allocate Resource")
+				Validation = false
+				Parameters.NLSMessage = BuildKweMessageNLS("AT_BLServerNLS","AT_FailedOperationInconsitentLink")
+			}
+		}
+	}
+	else if( ThisObject.HasAttribute("V_description") == true )
+	{
+		S_description= ThisObject->GetAttributeString("V_description")
+
+		Trace(1,"AT_CheckOperationLinksConsistency -V_description value [" + S_description + "]")
+		if(S_description <> "")
+		{
+			Trace(1,"AT_CheckOperationLinksConsistency -Searching CapableTag_Creation Tag")
+			I_SearchPositionCreation = S_description.Search("CapableTag_Creation",0,FALSE)
+			Trace(1,"AT_CheckOperationLinksConsistency - I_SearchPositionCreation [" + I_SearchPositionCreation + "]")
+			if ( I_SearchPositionCreation  <> -1 )
+			{
+				Trace(1,"AT_CheckOperationLinksConsistency - 'CapableTag_Creation' Tag is present so user need to use custom command to allocate Resource")
+				Validation = false
+				Parameters.NLSMessage = BuildKweMessageNLS("AT_BLServerNLS","AT_FailedOperationInconsitentLink")
+			}
+		}
+	}
+}

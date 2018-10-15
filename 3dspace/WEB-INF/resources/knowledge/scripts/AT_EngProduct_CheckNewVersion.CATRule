@@ -1,0 +1,14 @@
+let S_CurrentState(String)
+
+Validation = true
+
+S_CurrentState = ThisObject->GetAttributeString("current")
+
+/* State Frozen is blocked by BL, State InWork is normaly blocked by OneClick but done here for safety */
+
+if (S_CurrentState <> "RELEASED")
+{
+	Validation = false
+	Parameters.Severity = 1
+	Parameters.NLSMessage = BuildDeferredMessageNLS("AT_MESSAGE_ERROR_BL","AT_CheckRevisionProduct","")
+}

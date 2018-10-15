@@ -1,0 +1,107 @@
+Let newObject (PLMEntity)
+Let newInstance (VPMInstance)
+Let ChildReftList(List)
+Let ChildRefPart(VPMReference)
+Let RefID(STRING)
+Let InstID(STRING)
+Let IDNumber(STRING)
+Let Inc(Integer)
+Let IDSize(INTEGER)
+Let DotLoc(INTEGER)
+
+Trace(1,"Begin AT_EngProduct_OnDuplicate for ", ThisObject.PrimaryType.Name)
+
+if (ThisObject.IsSupporting("AT_ENG_TRAINSET") == true OR ThisObject.IsSupporting("AT_ENG_VEHICLE") == true OR ThisObject.IsSupporting("AT_ENG_ZONE") == true OR ThisObject.IsSupporting("AT_ENG_REFERENCE_INTERFACE") == true OR ThisObject.IsSupporting("AT_ENG_STUDY") == true OR ThisObject.IsSupporting("AT_ENG_PRODUCT_3DSPECIF") == true OR ThisObject.IsSupporting("AT_ENG_PRODUCT_2DSPECIF") == true OR ThisObject.IsSupporting("AT_ENG_DRAWING") == true OR ThisObject.IsSupporting("AT_ENG_3DSHAPE") == true)
+{
+	Trace(1,"Inside AT_EngProduct_OnDuplicate")
+	
+	set newObject = Parameters->GetAttributeObject("NewObject")
+	if (newObject == NULL)
+	{
+		Trace(1, "AT_EngProduct_OnDuplicate: new obj null")
+	}
+	else
+	{
+		Trace(1,"AT_EngProduct_OnDuplicate VName: ", newObject.V_Name)
+		newObject.V_Name = ""
+	}
+}
+else if(ThisObject.IsSupporting("VPMInstance"))
+{
+	set newInstance = Parameters->GetAttributeObject("NewObject")
+	if (newInstance == NULL)
+	{
+		Trace(1, "AT_EngProduct_OnDuplicate: new instance null")
+	}
+	else
+	{
+		ChildReftList = newInstance.Children
+		if ( ChildReftList->Size() > 0)
+		{
+			ChildRefPart = ChildReftList.GetItem(1)
+			if (ChildRefPart <> NULL)
+			{
+				if (ChildRefPart->IsSupporting("AT_ENG_TRAINSET") OR 
+					ChildRefPart->IsSupporting("AT_ENG_VEHICLE") OR
+					ChildRefPart->IsSupporting("AT_ENG_ZONE") OR
+					ChildRefPart->IsSupporting("AT_ENG_REFERENCE_INTERFACE") OR
+					ChildRefPart->IsSupporting("AT_ENG_PRODUCT_3DSPECIF") OR
+					ChildRefPart->IsSupporting("AT_ENG_PRODUCT_2DSPECIF") OR 
+					ChildRefPart->IsSupporting("AT_ENG_DEFORMED") OR 
+					ChildRefPart->IsSupporting("AT_ENG_STUDY"))
+				{
+					if (ChildRefPart->HasAttribute("PLM_ExternalID"))
+					{
+						RefID=ChildRefPart->GetAttributeString("PLM_ExternalID")
+						Trace(1, "AT_EngProduct_OnDuplicate Inst Ref ID: ", RefID)
+						
+						if (newInstance->HasAttribute("PLM_ExternalID") AND RefID <> "")
+						{
+							InstID = newInstance->GetAttributeString("PLM_ExternalID")
+							Trace(1, "AT_EngProduct_OnDuplicate Inst ID: ", InstID)
+							
+							IDSize=InstID.Length()
+							if(IDSize>1)
+							{
+								DotLoc = InstID.Search(".",IDSize,false)
+								InstID = InstID.Extract(DotLoc,IDSize-DotLoc)
+								Trace(1, "AT_EngProduct_OnDuplicate InstID trailing part: ", InstID)
+								InstID = RefID + InstID
+								newInstance->SetAttributeString("PLM_ExternalID", InstID)
+							}
+						}
+					}
+				}
+				else if (ChildRefPart->IsSupporting("AT_ENG_CONFIGURATION_ITEM") OR
+					 ChildRefPart->IsSupporting("AT_ENG_EXPECTED_PRODUCT") OR
+					 ChildRefPart->IsSupporting("AT_ENG_DESIGN_PRODUCT") OR
+					 ChildRefPart->IsSupporting("AT_ENG_STANDARD_PRODUCT") OR
+					 ChildRefPart->IsSupporting("AT_ENG_COS") OR
+					 ChildRefPart->IsSupporting("AT_ENG_MEP") )
+				{
+					if (ChildRefPart->HasAttribute("V_Name"))
+					{
+						RefID=ChildRefPart->GetAttributeString("V_Name")
+						Trace(1, "AT_EngProduct_OnDuplicate Inst Ref VName: ", RefID)
+						
+						if (newInstance->HasAttribute("PLM_ExternalID") AND RefID <> "")
+						{
+							InstID = newInstance->GetAttributeString("PLM_ExternalID")
+							Trace(1, "AT_EngProduct_OnDuplicate Inst ID: ", InstID)
+							
+							IDSize=InstID.Length()
+							if(IDSize>1)
+							{
+								DotLoc = InstID.Search(".",IDSize,false)
+								InstID = InstID.Extract(DotLoc,IDSize-DotLoc)
+								Trace(1, "AT_EngProduct_OnDuplicate InstID trailing part: ", InstID)
+								InstID = RefID + InstID
+								newInstance->SetAttributeString("PLM_ExternalID", InstID)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
