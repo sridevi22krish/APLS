@@ -8,7 +8,7 @@
 	<name>PLM Maven Webapp</name>
 	<url>http://maven.apache.org</url>
   <build>
-    <finalName>HelloWorld</finalName>
+    <finalName>PLM</finalName>
     <pluginManagement>
     <plugins>
     <plugin>
