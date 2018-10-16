@@ -7,35 +7,28 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>PLM Maven Webapp</name>
 	<url>http://maven.apache.org</url>
-  
-  <build>
+
+ <build>
+ <finalName>PLM</finalName>
+    <pluginManagement>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
+    <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+	<artifactId>cobertura-maven-plugin</artifactId>
+	<version>2.7</version>
+	</plugin>
     </plugins>
-  </build>
-	
-<build>
-      <plugins>
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <version>3.0</version>
-              <configuration>
-                  <webXml>srcmainwebappWEB-INFweb.xml</webXml>
-              </configuration>
-          </plugin>
-      </plugins>
-      <!-- we dont want the version to be part of the generated war file name -->
-      <finalName>PLM</finalName>
-  </build>
-	
-<webXml>WebContentWEB-INFweb.xml</webXml>
+    </pluginManagement>
+   </build>
+		
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<configuration>
+				<failOnMissingWebXml>false</failOnMissingWebXml>
+			</configuration>
+		</plugin>
+		
   
  <dependencies>
   <dependency>
